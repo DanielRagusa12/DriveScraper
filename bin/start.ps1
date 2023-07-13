@@ -39,16 +39,7 @@ if (-not(Test-Path "$env:SCRIPT_DIR\..\venv")) {
         pip.exe install -r "$env:SCRIPT_DIR\..\requirements.txt"
     }
 
-    # Copy themes.py from local directory to venv/Lib/site-packages/inquirer/ directory
-    $local_themes_path = "$env:SCRIPT_DIR\..\lib\themes.py"
-    Write-Host "Local themes.py path: $local_themes_path"
-    $venv_themes_path = "$env:SCRIPT_DIR\..\venv\Lib\site-packages\inquirer\themes.py"
-    if (Test-Path $local_themes_path) {
-        Copy-Item $local_themes_path $venv_themes_path -Force
-        Write-Host "themes.py copied to venv\Lib\site-packages\inquirer\" -ForegroundColor Green
-    } else {
-        Write-Host "themes.py not found in local directory. Skipping copy." -ForegroundColor Yellow
-    }
+    
 }
 
 else {

@@ -1,19 +1,3 @@
-import win32api
-import inquirer
-import os
-from rich.console import Console
-import platform
-from art import *
-import time
-from rich.theme import Theme
-from rich.panel import Panel
-from rich.table import Table
-import math
-import sys
-import shutil
-from rich.progress import track
-
-
 # Copyright 2023 Daniel Ragusa
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Software”), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
@@ -23,6 +7,52 @@ from rich.progress import track
 # THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+
+
+
+
+import win32api
+import inquirer
+import os
+from rich.console import Console
+import platform
+from art import *
+import time
+from rich.table import Table
+import math
+import sys
+import shutil
+from rich.progress import track
+from blessed import Terminal
+from inquirer.themes import Default
+
+
+term = Terminal()
+console = Console()
+searchLogList = []
+
+
+class CyberTheme(Default):
+    def __init__(self):
+        super().__init__()
+        self.Question.mark_color = term.purple
+        self.Question.brackets_color = term.normal
+        self.Question.default_color = term.normal
+        self.Editor.opening_prompt_color = term.bright_black
+        self.Checkbox.selection_color = term.cyan
+        self.Checkbox.selection_icon = ">"
+        self.Checkbox.selected_icon = "[X]"
+        self.Checkbox.selected_color = term.yellow + term.bold
+        self.Checkbox.unselected_color = term.normal
+        self.Checkbox.unselected_icon = "[ ]"
+        self.List.selection_color = term.cyan
+        self.List.selection_cursor = ">"
+        self.List.unselected_color = term.normal
+
+
+
+
+
 class SearchResult:
     def __init__(self, drive, ext, filesFoundNum, filesFoundSize, timeTaken):
         self.drive = drive
@@ -30,15 +60,7 @@ class SearchResult:
         self.filesFoundNum = filesFoundNum
         self.filesFoundSize = filesFoundSize
         self.timeTaken = timeTaken
-        
 
-
-
-
-
-console = Console()
-
-searchLogList = []
 
 
 
@@ -65,9 +87,9 @@ def getEndOption():
                     message="Choose an option",
                     choices=["Add To Search","Copy Found Files"],
                     carousel=True,
-                ),
+                ), 
     ]
-    return inquirer.prompt(options)
+    return inquirer.prompt(options, theme = CyberTheme())
 
 
 
@@ -80,11 +102,13 @@ def getDrive(drives):
                         message='Choose a drive',
                         choices=drives,
                         carousel=True,
+                        
+                        
                     ),
         ]
 
 
-        return inquirer.prompt(drives)
+        return inquirer.prompt(drives, theme=CyberTheme())
 
 
     except inquirer.errors.ValidationError:
@@ -101,7 +125,7 @@ def getExtension():
                 ),
     ]
 
-    answer = inquirer.prompt(options)
+    answer = inquirer.prompt(options, theme=CyberTheme())
 
     if answer == None:
         return None
@@ -113,7 +137,7 @@ def getExtension():
         inquirer.Text('ext', message='Enter extension with dot [.ext]'),
         ]
 
-        return inquirer.prompt(question)
+        return inquirer.prompt(question, theme=CyberTheme())
 
     return answer
 
@@ -127,7 +151,7 @@ def getOptions():
                 ),
     ]
 
-    return inquirer.prompt(options)
+    return inquirer.prompt(options, theme=CyberTheme())
     
       
 
