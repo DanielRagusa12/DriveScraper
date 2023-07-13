@@ -116,13 +116,13 @@ class BlueComposure(Default):
         super().__init__()
         self.Question.brackets_color = term.deepskyblue2
         self.Question.default_color = term.deepskyblue2
-        self.Checkbox.selection_icon = "➤"
+        self.Checkbox.selection_icon = ">>"
         self.Checkbox.selection_color = term.bold_black_on_darkslategray3
         self.Checkbox.selected_icon = "☒"
         self.Checkbox.selected_color = term.cyan3
         self.Checkbox.unselected_icon = "☐"
         self.List.selection_color = term.bold_black_on_darkslategray3
-        self.List.selection_cursor = "➤"
+        self.List.selection_cursor = ">>"
 
 
 
