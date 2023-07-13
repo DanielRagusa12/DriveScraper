@@ -4,8 +4,7 @@ driveScraper is a command-line tool that allows you to search and copy files wit
 
 ## Prerequisites
 
-- PowerShell
-- Python 3.x
+- [Python 3.x](https://www.python.org/downloads/)
 
 ## Installation
 
@@ -23,7 +22,15 @@ To install and run driveScraper, follow the steps below:
    cd driveScraper
    ```
 
-3. Run the `start.ps1` PowerShell script:
+3. Install the required Python packages by using the `requirements.txt` file:
+
+   ```powershell
+   pip install -r requirements.txt
+   ```
+
+   This will install all the necessary dependencies for driveScraper.
+
+4. Alternatively, you can also run the `start.ps1` PowerShell script:
 
    ```powershell
    .\bin\start.ps1
