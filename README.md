@@ -9,13 +9,13 @@ driveScraper is a command-line tool that allows you to search and copy files wit
 ## Prerequisites
 
 - [Python 3.x](https://www.python.org/downloads/)
+- [Git](https://git-scm.com/downloads)
 
 ## Installation
 
 To install and run driveScraper, follow the steps below:
 
 1. Clone the repository:
-- [Git](https://git-scm.com/downloads)
    ```powershell
    git clone https://github.com/your_username/driveScraper.git
    ```
