@@ -2,16 +2,20 @@
 
 driveScraper is a command-line tool that allows you to search and copy files with specific extensions from your computer's drives. It provides a user-friendly interface to perform the search and copy operations.
 
+![image](https://github.com/DanielRagusa12/scrapeBot/assets/90298464/1a9a6d5a-601b-48ce-83c3-4d2b517f56bf)
+
+
+
 ## Prerequisites
 
 - [Python 3.x](https://www.python.org/downloads/)
+- [Git](https://git-scm.com/downloads)
 
 ## Installation
 
 To install and run driveScraper, follow the steps below:
 
 1. Clone the repository:
-
    ```powershell
    git clone https://github.com/your_username/driveScraper.git
    ```
