@@ -361,6 +361,10 @@ def copyFiles(matchList):
             ext = os.path.splitext(i)[1]
             # make subfolder in scraped folder
             subFolder = os.path.join(scrapedPath, ext)
+
+            if ext.startswith('.'):
+                subFolder = os.path.join(scrapedPath, ext[1:])
+                
             if not os.path.exists(subFolder):
                 os.mkdir(subFolder)
 
