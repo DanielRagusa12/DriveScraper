@@ -18,7 +18,7 @@ To install and run driveScraper, follow the steps below:
 
 1. Clone the repository:
    ```powershell
-   git clone https://github.com/your_username/driveScraper.git
+   git clone https://github.com/DanielRagusa12/driveScraper.git
    ```
 
 2. Open a PowerShell session and navigate to the project directory:
@@ -48,7 +48,7 @@ To install and run driveScraper, follow the steps below:
 To run the driveScraper tool, execute the following command in the PowerShell session:
 
 ```powershell
-python.exe scrapeBot.py
+python.exe driveScraper.py
 ```
 
 The tool will present a series of prompts and options to perform the search and copy operations. Follow the on-screen instructions to provide the necessary inputs.
