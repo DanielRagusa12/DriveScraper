@@ -98,26 +98,28 @@ def getEndOption():
 def getDrive(drives):
 
     try:
-        if platform.system() == 'Linux':
-            drives = [os.path.basename(d.rstrip('/')) + '/' for d in drives]
+        choices = []
+        for drive in drives:
+            drive_name = drive.mountpoint
+            if platform.system() == 'Linux':
+                drive_name = os.path.basename(drive_name.rstrip('/'))
+            choices.append(drive_name)
 
         drives = [
-        inquirer.List('drive',
-                        message='Choose a drive',
-                        choices=drives,
-                        carousel=True,
-                        
-                        
-                    ),
+            inquirer.List(
+                'drive',
+                message='Choose a drive',
+                choices=choices,
+                carousel=True
+            )
         ]
-
 
         return inquirer.prompt(drives, theme=CyberTheme())
 
 
     except inquirer.errors.ValidationError:
         print('Invalid drive')
-        return getDrive(drives)
+        # return getDrive(drives)
     
 def getExtension():
 
