@@ -98,18 +98,12 @@ def getEndOption():
 def getDrive(drives):
 
     try:
-        choices = []
-        for drive in drives:
-            drive_name = drive.mountpoint
-            if platform.system() == 'Linux':
-                drive_name = os.path.basename(drive_name.rstrip('/'))
-            choices.append(drive_name)
-
+    
         drives = [
             inquirer.List(
                 'drive',
                 message='Choose a drive',
-                choices=choices,
+                choices=drives,
                 carousel=True
             )
         ]
@@ -431,23 +425,26 @@ def main():
         # drives = win32api.GetLogicalDriveStrings()
         # drives = drives.split('\000')[:-1]
 
-        if platform.system() == 'Windows':
-            drives = psutil.disk_partitions()
-            drives = [i.device for i in drives]
-
-        elif platform.system() == 'Linux':
-            drives = psutil.disk_partitions()
-            drives = [i.mountpoint for i in drives]
-
         
-
         
-
+            
+        # for windows the mountpoint and device are the same
         
+        drives = psutil.disk_partitions()
+        # drives = [i.mountpoint for i in drives]
+        drive_names = [i.device for i in drives]
 
+        drive = getDrive(drive_names)
+
+        # for linux the mountpoint and device are different 
+        if platform.system() == 'Linux':
+            # search for drive name in drives list and get mountpoint
+            for i in drives:
+                if i.device == drive['drive']:
+                    drive['drive'] = i.mountpoint
 
         # get drive
-        drive = getDrive(drives)
+        
         if drive == None:
             os.system(clear)
             break
