@@ -223,10 +223,14 @@ def scanDrive(drive_mountpoint, drive, ext, matchList):
 
             # check if linux to handle trash can
             if platform.system() == 'Linux':
-                if os.path.basename(root) == '.Trash-1000':
-                    console.print('Excluding trash can: ' + root, style='bold reverse green')
-                    dirs[:] = []
-                    continue
+                trash_dirs = ['.Trash', '.Trash-1000']  # Add more possible trash directory names if needed
+                
+                for trash_dir in trash_dirs:
+                    trash_path = os.path.join(os.path.expanduser('~'), trash_dir)
+                    if os.path.isdir(trash_path):
+                        console.print('Excluding trash can: ' + trash_path, style='bold reverse green')
+                        dirs[:] = []
+                        break
 
                 
 
