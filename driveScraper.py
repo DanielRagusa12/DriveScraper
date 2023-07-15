@@ -372,8 +372,14 @@ def copyFiles(matchList):
             # get destination path
             destPath = os.path.join(subFolder, os.path.basename(i))
             
+            # check if file already exists if so add its parent folder name to the file name "from folder"
+            if os.path.exists(destPath):
+                destPath = os.path.join(subFolder, os.path.basename(i) + ' from ' + os.path.basename(os.path.dirname(i)))
+                
             
-            
+                
+                
+
             # copy file to destination
             
             
