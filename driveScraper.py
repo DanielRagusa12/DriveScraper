@@ -222,13 +222,7 @@ def scanDrive(drive_mountpoint, drive, ext, matchList):
     try:
         for root, dirs, files in os.walk(drive_mountpoint, topdown=True):
 
-            # exclude the linux trash folder using get_linux_trash_path()
-            if platform.system() == 'Linux':
-                trash_path = get_linux_trash_path()
-                if trash_path and os.path.abspath(root) == trash_path:
-                    console.print('Excluding trash folder: ' + root, style='bold reverse green')
-                    dirs[:] = []
-                    continue
+            # future plans to exclude trash folder for linux
             
             
             # get current search directory
