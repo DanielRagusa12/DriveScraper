@@ -223,7 +223,7 @@ def scanDrive(drive_mountpoint, drive, ext, matchList):
 
             # check if linux to handle trash can
             if platform.system() == 'Linux':
-                trash_dirs = ['.Trash', '.Trash-1000']  # Add more possible trash directory names if needed
+                trash_dirs = ['Trash', '.Trash-1000']  # Add more possible trash directory names if needed
                 
                 for trash_dir in trash_dirs:
                     trash_path = os.path.join(os.path.expanduser('~'), trash_dir)
