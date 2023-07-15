@@ -377,7 +377,7 @@ def copyFiles(matchList):
             
             
 
-            shutil.copy(i, destPath)
+            shutil.copy2(i, destPath)
             count += 1
         
         except PermissionError:
