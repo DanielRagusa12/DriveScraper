@@ -167,7 +167,7 @@ def printSearchInfo(drive, ext):
 
 
 
-def scanDrive(drive, ext, matchList):
+def scanDrive(drive_mountpoint, drive, ext, matchList):
 
     
     logFolder = os.path.join(os.getcwd(),'logs')
@@ -204,7 +204,7 @@ def scanDrive(drive, ext, matchList):
     
 
     try:
-        for root, dirs, files in os.walk(drive['drive'], topdown=True):
+        for root, dirs, files in os.walk(drive_mountpoint, topdown=True):
             
             
             # get current search directory
@@ -429,21 +429,30 @@ def main():
         
             
         # for windows the mountpoint and device are the same
-        
+        # for linux the mountpoint and device are different so we need to get the mountpoint and name of the selected drive
+
         drives = psutil.disk_partitions()
-        # drives = [i.mountpoint for i in drives]
         drive_names = [i.device for i in drives]
 
         drive = getDrive(drive_names)
 
-        # for linux the mountpoint and device are different 
-        if platform.system() == 'Linux':
-            # search for drive name in drives list and get mountpoint
-            for i in drives:
-                if i.device == drive['drive']:
-                    drive['drive'] = i.mountpoint
+        
 
-        # get drive
+        
+        # get mountpoint of selected drive
+        for i in drives:
+            if i.device == drive['drive']:
+                drive_mountpoint = i.mountpoint
+                break
+        
+
+        
+        
+
+        
+        
+
+        
         
         if drive == None:
             os.system(clear)
@@ -461,6 +470,8 @@ def main():
 
         # show search info
         printScreen()
+
+        
         printSearchInfo(drive, ext)
 
         # get options
@@ -483,7 +494,7 @@ def main():
         with console.status("[bold white]Searching drive . . . ") as status:
                 
                 
-                searchResult = scanDrive(drive, ext, matchList)
+                searchResult = scanDrive(drive_mountpoint, drive, ext, matchList)
 
                 printScreen()
                 printSearchLog(searchResult, searchLogList)
