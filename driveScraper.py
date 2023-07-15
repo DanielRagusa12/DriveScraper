@@ -227,6 +227,8 @@ def scanDrive(drive_mountpoint, drive, ext, matchList):
                 trash_path = get_linux_trash_path()
                 if trash_path and os.path.abspath(root) == trash_path:
                     console.print('Excluding trash folder: ' + root, style='bold reverse green')
+                    dirs[:] = []
+                    continue
             
             
             # get current search directory
