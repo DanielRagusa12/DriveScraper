@@ -98,6 +98,8 @@ def getEndOption():
 def getDrive(drives):
 
     try:
+        if platform.system() == 'Linux':
+            drives = [os.path.basename(d.rstrip('/')) + '/' for d in drives]
 
         drives = [
         inquirer.List('drive',
