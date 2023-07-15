@@ -28,6 +28,7 @@ from rich.progress import track
 from blessed import Terminal
 from inquirer.themes import Default
 import datetime
+import subprocess
 
 
 term = Terminal()
@@ -63,6 +64,17 @@ class SearchResult:
         self.filesFoundNum = filesFoundNum
         self.filesFoundSize = filesFoundSize
         self.timeTaken = timeTaken
+
+
+
+def get_linux_trash_path():
+    # Use xdg-user-dir to retrieve the trash directory path
+    try:
+        output = subprocess.check_output(['xdg-user-dir', 'TRASH'], universal_newlines=True)
+        trash_path = output.strip()
+        return trash_path
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return None
 
 
 
@@ -223,14 +235,13 @@ def scanDrive(drive_mountpoint, drive, ext, matchList):
 
             # check if linux to handle trash can
             if platform.system() == 'Linux':
-                trash_dirs = ['Trash', '.Trash-1000']  # Add more possible trash directory names if needed
-                
-                for trash_dir in trash_dirs:
-                    trash_path = os.path.join(os.path.expanduser('~'), trash_dir)
-                    if os.path.isdir(trash_path):
-                        console.print('Excluding trash can: ' + trash_path, style='bold reverse green')
-                        dirs[:] = []
-                        break
+                trash_path = get_linux_trash_path()
+                if trash_path:
+                    for root, dirs, files in os.walk('/'):
+                        if root == trash_path:
+                            print('Excluding trash can:', root)
+                            dirs[:] = []
+                            break
 
                 
 
