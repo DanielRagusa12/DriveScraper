@@ -9,6 +9,7 @@
 
 import psutil
 import platform
+import errno
 
 
 
@@ -213,6 +214,20 @@ def scanDrive(drive_mountpoint, drive, ext, matchList):
                 console.print('Excluding script directory: ' + root, style='bold reverse green')
                 dirs[:] = []
                 continue
+
+            # also skip recycle bin C:\$Recycle.Bin\S-1-5-21-1840044218-614337522-3191390467-1001\$R3XK52W\game\dota_addons\cavern\resource\addon_brazilian.txt
+            if os.path.basename(root) == '$Recycle.Bin':
+                console.print('Excluding recycle bin: ' + root, style='bold reverse green')
+                dirs[:] = []
+                continue
+
+            # check if linux to handle trash can
+            if platform.system() == 'Linux':
+                if os.path.basename(root) == '.Trash-1000':
+                    console.print('Excluding trash can: ' + root, style='bold reverse green')
+                    dirs[:] = []
+                    continue
+
                 
 
 
@@ -372,10 +387,15 @@ def copyFiles(matchList):
             # get destination path
             destPath = os.path.join(subFolder, os.path.basename(i))
             
-            # check if file already exists if so add its parent folder name to the file name "from folder"
+            # check if file already exists if so add a timestamp to the end of the file before the extension
             if os.path.exists(destPath):
-                destPath = os.path.join(subFolder, os.path.basename(i) + ' from ' + os.path.basename(os.path.dirname(i)))
+                current_time = datetime.datetime.now().strftime('%Y%m%d%H%M%S')  # Use a timestamp format with alphanumeric characters only
+                file_name, extension = os.path.splitext(os.path.basename(i))
+                destPath = os.path.join(subFolder, f'{file_name}_{current_time}{count}{extension}')
+
+
                 
+
             
                 
                 
@@ -385,6 +405,7 @@ def copyFiles(matchList):
             
 
             shutil.copy2(i, destPath)
+            
             count += 1
         
         except PermissionError:
@@ -393,11 +414,78 @@ def copyFiles(matchList):
             current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             errLog.write(f'{current_time}\tPermissionDeniedFor: {i}\n')
 
-        except OSError:
-            isErrorThrown = True
-            errorCount += 1
-            current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            errLog.write(f'{current_time}\tOSError: {i}\n')
+        except OSError as e:
+            # log the error and wait 10 seconds before continuing
+            if e.errno == errno.ENOENT:
+                isErrorThrown = True
+                errorCount += 1
+                current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                errLog.write(f'{current_time}\tOSError FILE NOT FOUND: {i}\n')
+
+            elif e.errno == errno.EACCES:
+                isErrorThrown = True
+                errorCount += 1
+                current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                errLog.write(f'{current_time}\tOSError PERMISSION DENIED: {i}\n')
+            
+            
+            elif e.errno == errno.EEXIST:
+                isErrorThrown = True
+                errorCount += 1
+                current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                errLog.write(f'{current_time}\tOSError FILE ALREADY EXISTS: {i}\n')
+
+            elif e.errno == errno.ENOTDIR:
+                isErrorThrown = True
+                errorCount += 1
+                current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                errLog.write(f'{current_time}\tOSError NOT A DIRECTORY: {i}\n')
+
+            elif e.errno == errno.EINVAL:
+                isErrorThrown = True
+                errorCount += 1
+                current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                errLog.write(f'{current_time}\tOSError INVALID ARGUMENT: {i}\n')
+
+            elif e.errno == errno.ENOTEMPTY:
+                isErrorThrown = True
+                errorCount += 1
+                current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                errLog.write(f'{current_time}\tOSError DIRECTORY NOT EMPTY: {i}\n')
+            
+            elif e.errno == errno.EIO:
+                isErrorThrown = True
+                errorCount += 1
+                current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                errLog.write(f'{current_time}\tOSError IO ERROR: {i}\n')
+
+            elif e.errno == errno.ENOSPC:
+                isErrorThrown = True
+                errorCount += 1
+                current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                errLog.write(f'{current_time}\tOSError NO SPACE LEFT ON DEVICE: {i}\n')
+
+            elif e.errno == errno.ELOOP:
+                isErrorThrown = True
+                errorCount += 1
+                current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                errLog.write(f'{current_time}\tOSError TOO MANY SYMBOLIC LINKS: {i}\n')
+
+
+            
+            else:
+                isErrorThrown = True
+                errorCount += 1
+                current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                errLog.write(f'{current_time}\tOSError: {i}\n')
+
+
+            
+            
+            
+
+        
+
 
         
 
