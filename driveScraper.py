@@ -8,7 +8,7 @@
 
 
 import psutil
-
+import platform
 
 
 
@@ -227,7 +227,7 @@ def scanDrive(drive, ext, matchList):
 
                 try:
 
-                    if file.endswith(ext['ext']):
+                    if os.path.splitext(file)[1] == ext['ext']:
                         current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                         foundFilesLog.write(f'{current_time}\t{os.path.join(root, file)}\n')
                         matchList.append(os.path.join(root, file))
@@ -427,9 +427,13 @@ def main():
         # drives = win32api.GetLogicalDriveStrings()
         # drives = drives.split('\000')[:-1]
 
+        if platform.system() == 'Windows':
+            drives = psutil.disk_partitions()
+            drives = [i.device for i in drives]
 
-        drives = psutil.disk_partitions()
-        drives = [i.device for i in drives]
+        elif platform.system() == 'Linux':
+            drives = psutil.disk_partitions()
+            drives = [i.mountpoint for i in drives]
 
         
 
