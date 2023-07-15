@@ -18,7 +18,7 @@ To install and run driveScraper, follow the steps below:
 
 1. Clone the repository:
    ```powershell
-   git clone https://github.com/your_username/driveScraper.git
+   git clone https://github.com/DanielRagusa12/driveScraper.git
    ```
 
 2. Open a PowerShell session and navigate to the project directory:
