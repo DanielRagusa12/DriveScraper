@@ -232,16 +232,21 @@ def scanDrive(drive_mountpoint, drive, ext, matchList):
                 console.print('Excluding recycle bin: ' + root, style='bold reverse green')
                 dirs[:] = []
                 continue
-
+            
+            trash_path_found = False
             # check if linux to handle trash can
             if platform.system() == 'Linux':
                 trash_path = get_linux_trash_path()
-                if trash_path:
-                    for root, dirs, files in os.walk('/'):
-                        if root == trash_path:
-                            print('Excluding trash can:', root)
-                            dirs[:] = []
-                            break
+                trash_found = False
+
+                for root, dirs, files in os.walk('/'):
+                    if trash_found:
+                        dirs[:] = []  # Exclude subdirectories of trash once it's found
+                        break
+
+                    if root == trash_path:
+                        print('Excluding trash can:', root)
+                        trash_found = True
 
                 
 
