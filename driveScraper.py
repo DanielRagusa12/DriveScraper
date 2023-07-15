@@ -7,11 +7,12 @@
 # THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+import psutil
 
 
 
 
-import win32api
+
 import inquirer
 import os
 from rich.console import Console
@@ -25,6 +26,7 @@ import shutil
 from rich.progress import track
 from blessed import Terminal
 from inquirer.themes import Default
+import datetime
 
 
 term = Terminal()
@@ -168,7 +170,10 @@ def printSearchInfo(drive, ext):
 
 
 def scanDrive(drive, ext, matchList):
-    logFolder = os.path.join(os.getcwd(), '..' '/logs')
+
+    
+    logFolder = os.path.join(os.getcwd(),'logs')
+    
     if not os.path.exists(logFolder):
         os.mkdir(logFolder)
 
@@ -193,18 +198,21 @@ def scanDrive(drive, ext, matchList):
     
 
     # Get the directory that contains the script
-    script_dir = os.path.dirname(__file__)
+    exclusionDir = os.path.dirname(__file__)
+    exclusionDir = os.path.abspath(exclusionDir)
     
 
-    # Get the name of the directory to exclude
-    exclusionDir = os.path.abspath(os.path.basename(script_dir))
+    
+    
 
     try:
         for root, dirs, files in os.walk(drive['drive'], topdown=True):
             
+            
             # get current search directory
-            if os.path.abspath(root) == exclusionDir:
-                console.print('Excluding directory: ' + root, style='bold reverse green')
+            if os.path.samefile(exclusionDir, os.path.abspath(root)):
+            
+                console.print('Excluding script directory: ' + root, style='bold reverse green')
                 dirs[:] = []
                 continue
                 
@@ -220,7 +228,8 @@ def scanDrive(drive, ext, matchList):
                 try:
 
                     if file.endswith(ext['ext']):
-                        foundFilesLog.write(os.path.join(root, file) + '\n')
+                        current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                        foundFilesLog.write(f'{current_time}\t{os.path.join(root, file)}\n')
                         matchList.append(os.path.join(root, file))
                         foundFileSize += os.path.getsize(os.path.join(root, file))
         
@@ -228,21 +237,25 @@ def scanDrive(drive, ext, matchList):
                     console.print('[red]UnicodeEncodeError: ' + os.path.join(root, file), style='bold reverse red')
 
                     # write the parent dir of the file that caused the error
-                    errLog.write('UnicodeEncodeError: ' + os.path.abspath(root) + '\n')
+                    current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                    errLog.write(f'{current_time}\tUnicodeEncodeError: {os.path.abspath(root)}\n')
 
                     
 
                 except FileNotFoundError:
                     console.print('FileNotFoundError: ' + os.path.join(root, file), style='bold reverse red')
-                    errLog.write('FileNotFoundError: ' + os.path.join(root, file) + '\n')
+                    current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                    errLog.write(f'{current_time}\tFileNotFoundError: {os.path.join(root, file)}\n')
 
                 except PermissionError:
                     console.print('PermissionDeniedFor: ' + os.path.join(root, file), style='bold reverse red')
-                    errLog.write('PermissionDeniedFor: ' + os.path.join(root, file) + '\n')
+                    current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                    errLog.write(f'{current_time}\tPermissionDeniedFor: {os.path.join(root, file)}\n')
 
                 except OSError:
                     console.print('OSError: ' + os.path.join(root, file), style='reverse red')
-                    errLog.write('OSError: ' + os.path.join(root, file) + '\n')
+                    current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                    errLog.write(f'{current_time}\tOSError: {os.path.join(root, file)}\n')
                 
 
                 
@@ -320,7 +333,8 @@ def convert_size(size_bytes):
                 
 def copyFiles(matchList):
 
-    logFolder = os.path.join(os.getcwd(), '..' '/logs')
+    logFolder = os.path.join(os.getcwd(),'logs')
+
 
     errLog = open(f"{logFolder}/copyErr.log","a")
 
@@ -328,7 +342,7 @@ def copyFiles(matchList):
 
 
 
-    scrapedPath = os.path.join(os.getcwd(), '../scraped')
+    scrapedPath = os.path.join(os.getcwd(), 'scraped')
     if not os.path.exists(scrapedPath):
         os.mkdir(scrapedPath)
 
@@ -354,6 +368,9 @@ def copyFiles(matchList):
 
             # get destination path
             destPath = os.path.join(subFolder, os.path.basename(i))
+            
+            
+            
             # copy file to destination
             
             
@@ -364,12 +381,16 @@ def copyFiles(matchList):
         except PermissionError:
             isErrorThrown = True
             errorCount += 1
-            errLog.write('PermissionDeniedFor: ' + i + '\n')
+            current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            errLog.write(f'{current_time}\tPermissionDeniedFor: {i}\n')
 
         except OSError:
             isErrorThrown = True
             errorCount += 1
-            errLog.write('OSError: ' + i + '\n')
+            current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            errLog.write(f'{current_time}\tOSError: {i}\n')
+
+        
 
 
         
@@ -402,9 +423,18 @@ def main():
         
         printScreen()
 
-        drives = []
-        drives = win32api.GetLogicalDriveStrings()
-        drives = drives.split('\000')[:-1]
+        # drives = []
+        # drives = win32api.GetLogicalDriveStrings()
+        # drives = drives.split('\000')[:-1]
+
+
+        drives = psutil.disk_partitions()
+        drives = [i.device for i in drives]
+
+        
+
+        
+
         
 
 

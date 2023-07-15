@@ -51,4 +51,4 @@ else {
 
 
 # Run the Python script
-python.exe "$env:SCRIPT_DIR\..\scrapeBot.py"
+python.exe "$env:SCRIPT_DIR\..\driveScraper.py"
