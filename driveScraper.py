@@ -128,6 +128,7 @@ def getDrive(drives):
         print('Invalid drive')
         # return getDrive(drives)
     
+    
 def getExtension():
 
     options = [
@@ -552,13 +553,17 @@ def main():
 
         
 
-        
+   
         # get mountpoint of selected drive
-        for i in drives:
-            if i.device == drive['drive']:
-                drive_mountpoint = i.mountpoint
-                break
+        if (drive):
+            for i in drives:
+                if i.device == drive['drive']:
+                    drive_mountpoint = i.mountpoint
+                    break
+
         
+
+            
 
         
         
