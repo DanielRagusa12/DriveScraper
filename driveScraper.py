@@ -183,6 +183,9 @@ def printSearchInfo(drive, ext):
 
 def scanDrive(drive_mountpoint, drive, ext, matchList):
 
+    # empty matchList
+    matchList.clear()
+
     
     logFolder = os.path.join(os.getcwd(),'logs')
     
@@ -203,7 +206,7 @@ def scanDrive(drive_mountpoint, drive, ext, matchList):
 
     startTime = time.perf_counter()
     
-
+    
     foundFileSize = 0
 
 
@@ -224,7 +227,7 @@ def scanDrive(drive_mountpoint, drive, ext, matchList):
         for root, dirs, files in os.walk(drive_mountpoint, topdown=True):
 
             # future plans to exclude trash folder for linux
-            
+              
             
             # get current search directory
             if os.path.samefile(exclusionDir, os.path.abspath(root)):
