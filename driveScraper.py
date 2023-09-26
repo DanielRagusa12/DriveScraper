@@ -409,7 +409,6 @@ def copyFiles(matchList):
                 file_name, extension = os.path.splitext(os.path.basename(i))
                 destPath = os.path.join(subFolder, f'{file_name}_{current_time}{count}{extension}')
 
-
                 
 
             
@@ -529,6 +528,8 @@ def main():
 
     matchList = []
 
+    currentSearches = []
+
 
     while(True):
 
@@ -608,9 +609,16 @@ def main():
         
         printSearchInfo(drive, ext)
 
+        if (drive, ext) in currentSearches:
+            console.print(f'[bold red]This search has already been performed in this session!', style='reverse bold red')
+            time.sleep(2)
+            continue
+
+
         # an array to hold search results for session
         
         with console.status("[bold white]Searching drive . . . ") as status:
+                currentSearches.append((drive, ext))
                 
                 
                 searchResult = scanDrive(drive_mountpoint, drive, ext, matchList)
