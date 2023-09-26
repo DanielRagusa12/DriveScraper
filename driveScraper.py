@@ -183,8 +183,7 @@ def printSearchInfo(drive, ext):
 
 def scanDrive(drive_mountpoint, drive, ext, matchList):
 
-    # empty matchList
-    matchList.clear()
+    
 
     
     logFolder = os.path.join(os.getcwd(),'logs')
@@ -208,6 +207,7 @@ def scanDrive(drive_mountpoint, drive, ext, matchList):
     
     
     foundFileSize = 0
+    foundFiles = 0
 
 
     
@@ -263,6 +263,7 @@ def scanDrive(drive_mountpoint, drive, ext, matchList):
                         current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                         foundFilesLog.write(f'{current_time}\t{os.path.join(root, file)}\n')
                         matchList.append(os.path.join(root, file))
+                        foundFiles += 1
                         foundFileSize += os.path.getsize(os.path.join(root, file))
         
                 except UnicodeEncodeError:
@@ -301,7 +302,7 @@ def scanDrive(drive_mountpoint, drive, ext, matchList):
     errLog.close()
     foundFilesLog.close()
 
-    searchResult = SearchResult(drive['drive'], ext['ext'], len(matchList), convert_size(foundFileSize), round(time.perf_counter() - startTime, 2))
+    searchResult = SearchResult(drive['drive'], ext['ext'], foundFiles, convert_size(foundFileSize), round(time.perf_counter() - startTime, 2))
     return searchResult
 
     
