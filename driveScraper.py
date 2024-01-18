@@ -10,10 +10,6 @@
 import psutil
 import platform
 import errno
-
-
-
-
 import inquirer
 import os
 from rich.console import Console
@@ -29,6 +25,17 @@ from blessed import Terminal
 from inquirer.themes import Default
 import datetime
 import subprocess
+import threading
+
+error_messages = {
+    errno.ENOENT: "OSError FILE NOT FOUND",
+    errno.EACCES: "OSError PERMISSION DENIED",
+    errno.EEXIST: "OSError FILE ALREADY EXISTS",
+    errno.ENOTDIR: "OSError NOT A DIRECTORY",
+    errno.EINVAL: "OSError INVALID ARGUMENT",
+    errno.ENOTEMPTY: "OSError DIRECTORY NOT EMPTY"
+}
+
 
 
 term = Terminal()
@@ -176,16 +183,7 @@ def printSearchInfo(drive, ext):
 
 
     
-
-
-
-
-
 def scanDrive(drive_mountpoint, drive, ext, matchList):
-
-    
-
-    
     logFolder = os.path.join(os.getcwd(),'logs')
     
     if not os.path.exists(logFolder):
@@ -196,11 +194,6 @@ def scanDrive(drive_mountpoint, drive, ext, matchList):
     errLog = open(f"{logFolder}/scanErr.log","a")
 
 
-
-
-
-
-    
     # scan drive for files with extension
 
     startTime = time.perf_counter()
@@ -208,20 +201,9 @@ def scanDrive(drive_mountpoint, drive, ext, matchList):
     
     foundFileSize = 0
     foundFiles = 0
-
-
-    
-
     # Get the directory that contains the script
     exclusionDir = os.path.dirname(__file__)
     exclusionDir = os.path.abspath(exclusionDir)
-
-
-   
-    
-
-    
-    
 
     try:
         for root, dirs, files in os.walk(drive_mountpoint, topdown=True):
@@ -242,23 +224,8 @@ def scanDrive(drive_mountpoint, drive, ext, matchList):
                 dirs[:] = []
                 continue
 
-           
-            
-            
-            
-
-                
-
-
-
-            
-
             for file in files:
-                
-                
-
                 try:
-
                     if os.path.splitext(file)[1] == ext['ext']:
                         current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                         foundFilesLog.write(f'{current_time}\t{os.path.join(root, file)}\n')
@@ -268,12 +235,9 @@ def scanDrive(drive_mountpoint, drive, ext, matchList):
         
                 except UnicodeEncodeError:
                     console.print('[red]UnicodeEncodeError: ' + os.path.join(root, file), style='bold reverse red')
-
                     # write the parent dir of the file that caused the error
                     current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                     errLog.write(f'{current_time}\tUnicodeEncodeError: {os.path.abspath(root)}\n')
-
-                    
 
                 except FileNotFoundError:
                     console.print('FileNotFoundError: ' + os.path.join(root, file), style='bold reverse red')
@@ -289,10 +253,6 @@ def scanDrive(drive_mountpoint, drive, ext, matchList):
                     console.print('OSError: ' + os.path.join(root, file), style='reverse red')
                     current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                     errLog.write(f'{current_time}\tOSError: {os.path.join(root, file)}\n')
-                
-
-                
-
     except KeyboardInterrupt:
         os.system(clear)
         console.print(scrapeBotArt, style='bold red', justify='left')
@@ -311,12 +271,6 @@ def scanDrive(drive_mountpoint, drive, ext, matchList):
 
 
 def printSearchLog(result, searchLogList):
-
-    
-
-    
-
-
     table = Table()
     table.add_column("Drive", justify="right", style="bold red", no_wrap=True)
     table.add_column("Extension", style="bold magenta")
@@ -324,31 +278,16 @@ def printSearchLog(result, searchLogList):
     table.add_column("Size", justify="right", style="bold green")
     table.add_column("Time(s)", justify="right", style="bold white")
 
-    # searchLogTupleList.append((ext,count,drive,time))
-
     searchLogList.append(result)
-    
 
     for i in searchLogList:
-        # table.add_row(i.ext, i.count, i.drive, i.time, i.size)
-
         table.add_row(str(i.drive), str(i.ext), str(i.filesFoundNum), str(i.filesFoundSize), str(i.timeTaken))
-        
-
-
-
-
-        # table.add_row(i[0],i[1],i[2],i[3])
-
-
     console.print(table)
-
 
 
 def convert_size(size_bytes):
    if size_bytes == 0:
        return "0B"
-
 
    size_name = ("B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB")
 
@@ -356,42 +295,24 @@ def convert_size(size_bytes):
    p = math.pow(1024, i)
    s = round(size_bytes / p, 2)
 
-
    return "%s %s" % (s, size_name[i])
       
 
-            
-
-               
-                
+                           
 def copyFiles(matchList):
 
     logFolder = os.path.join(os.getcwd(),'logs')
-
-
     errLog = open(f"{logFolder}/copyErr.log","a")
-
-    
-
-
-
     scrapedPath = os.path.join(os.getcwd(), 'scraped')
     if not os.path.exists(scrapedPath):
         os.mkdir(scrapedPath)
 
     count = 0
-
-
     isErrorThrown = False
     errorCount = 0
 
     for i in track(matchList, description='Copying Files'):
         try:
-            # print(i)
-            # print(count)
-            
-            
-            
             # get ext of file to create folder
             ext = os.path.splitext(i)[1]
             # make subfolder in scraped folder
@@ -411,20 +332,9 @@ def copyFiles(matchList):
             if os.path.exists(destPath):
                 current_time = datetime.datetime.now().strftime('%Y%m%d%H%M%S')  # Use a timestamp format with alphanumeric characters only
                 file_name, extension = os.path.splitext(os.path.basename(i))
-                destPath = os.path.join(subFolder, f'{file_name}_{current_time}{count}{extension}')
-
-                
-
-            
-                
-                
-
-            # copy file to destination
-            
-            
-
+                destPath = os.path.join(subFolder, f'{file_name}_{current_time}{count}{extension}')            
+        
             shutil.copy2(i, destPath)
-            
             count += 1
         
         except PermissionError:
@@ -434,82 +344,13 @@ def copyFiles(matchList):
             errLog.write(f'{current_time}\tPermissionDeniedFor: {i}\n')
 
         except OSError as e:
-            # log the error and wait 10 seconds before continuing
-            if e.errno == errno.ENOENT:
+            if e.errno in error_messages:
                 isErrorThrown = True
                 errorCount += 1
                 current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                errLog.write(f'{current_time}\tOSError FILE NOT FOUND: {i}\n')
-
-            elif e.errno == errno.EACCES:
-                isErrorThrown = True
-                errorCount += 1
-                current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                errLog.write(f'{current_time}\tOSError PERMISSION DENIED: {i}\n')
-            
-            
-            elif e.errno == errno.EEXIST:
-                isErrorThrown = True
-                errorCount += 1
-                current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                errLog.write(f'{current_time}\tOSError FILE ALREADY EXISTS: {i}\n')
-
-            elif e.errno == errno.ENOTDIR:
-                isErrorThrown = True
-                errorCount += 1
-                current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                errLog.write(f'{current_time}\tOSError NOT A DIRECTORY: {i}\n')
-
-            elif e.errno == errno.EINVAL:
-                isErrorThrown = True
-                errorCount += 1
-                current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                errLog.write(f'{current_time}\tOSError INVALID ARGUMENT: {i}\n')
-
-            elif e.errno == errno.ENOTEMPTY:
-                isErrorThrown = True
-                errorCount += 1
-                current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                errLog.write(f'{current_time}\tOSError DIRECTORY NOT EMPTY: {i}\n')
-            
-            elif e.errno == errno.EIO:
-                isErrorThrown = True
-                errorCount += 1
-                current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                errLog.write(f'{current_time}\tOSError IO ERROR: {i}\n')
-
-            elif e.errno == errno.ENOSPC:
-                isErrorThrown = True
-                errorCount += 1
-                current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                errLog.write(f'{current_time}\tOSError NO SPACE LEFT ON DEVICE: {i}\n')
-
-            elif e.errno == errno.ELOOP:
-                isErrorThrown = True
-                errorCount += 1
-                current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                errLog.write(f'{current_time}\tOSError TOO MANY SYMBOLIC LINKS: {i}\n')
-
-
-            
+                errLog.write(f'{current_time}\t{error_messages[e.errno]}: {i}\n')
             else:
-                isErrorThrown = True
-                errorCount += 1
-                current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                errLog.write(f'{current_time}\tOSError: {i}\n')
-
-
-            
-            
-            
-
-        
-
-
-        
-
-
-        
+                raise e
 
     if isErrorThrown:
         console.print(f'[bold red]({errorCount}) Errors Occured. Check logs for details.', style='reverse bold red')
@@ -518,16 +359,6 @@ def copyFiles(matchList):
     return count
     
     
-    
-   
-
-
-
-
-
-
-
-
 def main():
 
     matchList = []
@@ -537,16 +368,7 @@ def main():
 
     while(True):
 
-        
-        
         printScreen()
-
-        # drives = []
-        # drives = win32api.GetLogicalDriveStrings()
-        # drives = drives.split('\000')[:-1]
-
-        
-        
             
         # for windows the mountpoint and device are the same
         # for linux the mountpoint and device are different so we need to get the mountpoint and name of the selected drive
@@ -555,9 +377,6 @@ def main():
         drive_names = [i.device for i in drives]
 
         drive = getDrive(drive_names)
-
-        
-
    
         # get mountpoint of selected drive
         if (drive):
@@ -566,17 +385,6 @@ def main():
                     drive_mountpoint = i.mountpoint
                     break
 
-        
-
-            
-
-        
-        
-
-        
-        
-
-        
         
         if drive == None:
             os.system(clear)
@@ -637,15 +445,9 @@ def main():
             break
         elif userEndOption['choice'] == "Add To Search":
             continue
-
-                        
-
-
-        
+               
         printScreen()
 
-
-        
         beforeCount = len(matchList)
 
         afterCount = copyFiles(matchList)
@@ -658,16 +460,6 @@ def main():
         sys.exit()
         
         
-
-
-
-
-                
-        
-        
-
-
-
 if __name__ == "__main__":
     main()
     # exit program
