@@ -27,6 +27,12 @@ import datetime
 import subprocess
 import threading
 
+term = Terminal()
+console = Console()
+searchLogList = []
+scrapeBotArt = text2art('driveScraper', font='small')
+
+
 error_messages = {
     errno.ENOENT: "OSError FILE NOT FOUND",
     errno.EACCES: "OSError PERMISSION DENIED",
@@ -35,13 +41,6 @@ error_messages = {
     errno.EINVAL: "OSError INVALID ARGUMENT",
     errno.ENOTEMPTY: "OSError DIRECTORY NOT EMPTY"
 }
-
-
-
-term = Terminal()
-console = Console()
-searchLogList = []
-
 
 class CyberTheme(Default):
     def __init__(self):
@@ -59,9 +58,6 @@ class CyberTheme(Default):
         self.List.selection_color = term.cyan
         self.List.selection_cursor = ">"
         self.List.unselected_color = term.normal
-
-
-
 
 
 class SearchResult:
@@ -83,11 +79,6 @@ def get_linux_trash_path():
     except (subprocess.CalledProcessError, FileNotFoundError):
         return None
 
-
-
-
-
-scrapeBotArt = text2art('driveScraper', font='small')
 
 if platform.system() == 'Windows':
     
@@ -173,52 +164,43 @@ def getOptions():
     ]
 
     return inquirer.prompt(options, theme=CyberTheme())
+
+
+def log_error(errLog, error_type, file_path):
+    console.print(f'{error_type}: {file_path}', style='bold reverse red')
+    current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    errLog.write(f'{current_time}\t{error_type}: {file_path}\n')
     
       
-
 
 
 def printSearchInfo(drive, ext):
     console.print(f"[white]Drive: [cyan]{drive['drive']} [white]Extension: [cyan]{ext['ext']}\n", style = ' bold reverse green')
 
-
-    
+   
 def scanDrive(drive_mountpoint, drive, ext, matchList):
     logFolder = os.path.join(os.getcwd(),'logs')
-    
     if not os.path.exists(logFolder):
         os.mkdir(logFolder)
-
-    # create logs file
     foundFilesLog = open(f"{logFolder}/foundFiles.log","a")
     errLog = open(f"{logFolder}/scanErr.log","a")
 
-
-    # scan drive for files with extension
-
     startTime = time.perf_counter()
-    
-    
     foundFileSize = 0
     foundFiles = 0
-    # Get the directory that contains the script
     exclusionDir = os.path.dirname(__file__)
     exclusionDir = os.path.abspath(exclusionDir)
 
     try:
-        for root, dirs, files in os.walk(drive_mountpoint, topdown=True):
+        for root, dirs, files in os.walk(drive_mountpoint, topdown=True):    
 
-            # future plans to exclude trash folder for linux
-              
-            
             # get current search directory
             if os.path.samefile(exclusionDir, os.path.abspath(root)):
-            
                 console.print('Excluding script directory: ' + root, style='bold reverse green')
                 dirs[:] = []
                 continue
 
-            # also skip recycle bin C:\$Recycle.Bin\S-1-5-21-1840044218-614337522-3191390467-1001\$R3XK52W\game\dota_addons\cavern\resource\addon_brazilian.txt
+            # also skip recycle bin 
             if os.path.basename(root) == '$Recycle.Bin':
                 console.print('Excluding recycle bin: ' + root, style='bold reverse green')
                 dirs[:] = []
@@ -232,27 +214,11 @@ def scanDrive(drive_mountpoint, drive, ext, matchList):
                         matchList.append(os.path.join(root, file))
                         foundFiles += 1
                         foundFileSize += os.path.getsize(os.path.join(root, file))
-        
                 except UnicodeEncodeError:
-                    console.print('[red]UnicodeEncodeError: ' + os.path.join(root, file), style='bold reverse red')
-                    # write the parent dir of the file that caused the error
-                    current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                    errLog.write(f'{current_time}\tUnicodeEncodeError: {os.path.abspath(root)}\n')
-
+                    log_error(errLog, 'UnicodeEncodeError', os.path.join(root, file))
                 except FileNotFoundError:
-                    console.print('FileNotFoundError: ' + os.path.join(root, file), style='bold reverse red')
-                    current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                    errLog.write(f'{current_time}\tFileNotFoundError: {os.path.join(root, file)}\n')
+                    log_error(errLog, 'FileNotFoundError', os.path.join(root, file))
 
-                except PermissionError:
-                    console.print('PermissionDeniedFor: ' + os.path.join(root, file), style='bold reverse red')
-                    current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                    errLog.write(f'{current_time}\tPermissionDeniedFor: {os.path.join(root, file)}\n')
-
-                except OSError:
-                    console.print('OSError: ' + os.path.join(root, file), style='reverse red')
-                    current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                    errLog.write(f'{current_time}\tOSError: {os.path.join(root, file)}\n')
     except KeyboardInterrupt:
         os.system(clear)
         console.print(scrapeBotArt, style='bold red', justify='left')
@@ -261,7 +227,6 @@ def scanDrive(drive_mountpoint, drive, ext, matchList):
 
     errLog.close()
     foundFilesLog.close()
-
     searchResult = SearchResult(drive['drive'], ext['ext'], foundFiles, convert_size(foundFileSize), round(time.perf_counter() - startTime, 2))
     return searchResult
 
@@ -337,20 +302,15 @@ def copyFiles(matchList):
             shutil.copy2(i, destPath)
             count += 1
         
-        except PermissionError:
+        except UnicodeEncodeError:
+            log_error(errLog, 'UnicodeEncodeError', i)
             isErrorThrown = True
             errorCount += 1
-            current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            errLog.write(f'{current_time}\tPermissionDeniedFor: {i}\n')
 
-        except OSError as e:
-            if e.errno in error_messages:
-                isErrorThrown = True
-                errorCount += 1
-                current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                errLog.write(f'{current_time}\t{error_messages[e.errno]}: {i}\n')
-            else:
-                raise e
+        except FileNotFoundError:
+            log_error(errLog, 'FileNotFoundError', i)
+            isErrorThrown = True
+            errorCount += 1
 
     if isErrorThrown:
         console.print(f'[bold red]({errorCount}) Errors Occured. Check logs for details.', style='reverse bold red')
