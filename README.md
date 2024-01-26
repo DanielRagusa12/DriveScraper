@@ -21,10 +21,10 @@ To install and run driveScraper, follow the steps below:
    git clone https://github.com/DanielRagusa12/DriveScraper
    ```
 
-2. Open a PowerShell session and navigate to the project directory:
+2. Open a terminal session and navigate to the project directory:
 
    ```powershell
-   cd driveScraper
+   cd DriveScraper
    ```
 
 3. Install the required Python packages by using the `requirements.txt` file:
@@ -41,14 +41,14 @@ To install and run driveScraper, follow the steps below:
    .\bin\start.ps1
    ```
 
-   This script will handle the installation of Python and its dependencies, create a virtual environment, and install the required Python packages.
+   This script will handle the installation of Python, create a virtual environment, and install the required dependencies.
 
 ## Usage
 
 To run the driveScraper tool, execute the following command in the PowerShell session:
 
 ```powershell
-python.exe driveScraper.py
+python DriveScraper.py
 ```
 
 The tool will present a series of prompts and options to perform the search and copy operations. Follow the on-screen instructions to provide the necessary inputs.
