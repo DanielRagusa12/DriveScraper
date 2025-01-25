@@ -5,6 +5,9 @@ DriveScraper is a command-line tool that allows you to search and copy files wit
 ![image](https://github.com/DanielRagusa12/scrapeBot/assets/90298464/dc6fc4ae-698e-404d-86b1-31f78e0077d2)
 
 
+![image](https://github.com/user-attachments/assets/85c75246-1a50-4274-8699-cbfaafe6ba9b)
+
+
 
 
 ## Prerequisites
