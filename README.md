@@ -2,10 +2,11 @@
 
 DriveScraper is a command-line tool that allows you to search and copy files with specific extensions from your computer's drives. It provides a user-friendly interface to perform the search and copy operations.
 
-![image](https://github.com/DanielRagusa12/scrapeBot/assets/90298464/dc6fc4ae-698e-404d-86b1-31f78e0077d2)
+![image](https://github.com/user-attachments/assets/c777247e-343c-4f72-ba29-6e9196877141)
 
 
-![image](https://github.com/user-attachments/assets/85c75246-1a50-4274-8699-cbfaafe6ba9b)
+
+![image](https://github.com/user-attachments/assets/00b12166-e290-442b-9dab-3ac13f7d4dee)
 
 
 
